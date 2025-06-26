@@ -1,21 +1,27 @@
 ﻿using System;
 using System.Data;
+using System.Data.Common;
 using GTFS;
+using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using NextDepartures.Database.Extensions;
 
 GTFSReader<GTFSFeed> reader = new();
 var feed = reader.Read(path: "Data/feed.zip");
 
-await using SqliteConnection connection = new(connectionString: "Data Source=Data/feed.db;");
-connection.Open();
+var azureSql = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTION_STRING");
 
-var command = new SqliteCommand
-{
-    CommandTimeout = 0,
-    CommandType = CommandType.Text,
-    Connection = connection
-};
+await using DbConnection connection = string.IsNullOrWhiteSpace(azureSql)
+    ? new SqliteConnection("Data Source=Data/feed.db;")
+    : new SqlConnection(azureSql);
+await connection.OpenAsync();
+
+DbCommand command = string.IsNullOrWhiteSpace(azureSql)
+    ? new SqliteCommand()
+    : new SqlCommand();
+command.CommandTimeout = 0;
+command.CommandType = CommandType.Text;
+command.Connection = connection;
 
 command.CommandText = "INSERT INTO GTFS_AGENCY (" +
                             "AgencyId, " +
@@ -42,43 +48,43 @@ foreach (var a in feed.Agencies)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@agencyId",
         value: a.Id is not null
             ? a.Id.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@agencyName",
         value: a.Name.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@agencyUrl",
         value: a.URL.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@agencyTimezone",
         value: a.Timezone.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@agencyLang",
         value: a.LanguageCode is not null
             ? a.LanguageCode.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@agencyPhone",
         value: a.Phone is not null
             ? a.Phone.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@agencyFareUrl",
         value: a.FareURL is not null
             ? a.FareURL.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@agencyEmail",
         value: a.Email is not null
             ? a.Email.TrimDoubleQuotes()
@@ -118,43 +124,43 @@ foreach (var c in feed.Calendars)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@serviceId",
         value: c.ServiceId.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@monday",
         value: c.Monday);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@tuesday",
         value: c.Tuesday);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@wednesday",
         value: c.Wednesday);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@thursday",
         value: c.Thursday);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@friday",
         value: c.Friday);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@saturday",
         value: c.Saturday);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@sunday",
         value: c.Sunday);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@startDate",
         value: c.StartDate);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@endDate",
         value: c.EndDate);
     
@@ -178,15 +184,15 @@ foreach (var d in feed.CalendarDates)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@serviceId",
         value: d.ServiceId.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@exceptionDate",
         value: d.Date);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@exceptionType",
         value: d.ExceptionType);
     
@@ -218,35 +224,35 @@ foreach (var f in feed.FareAttributes)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@fareId",
         value: f.FareId.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@price",
         value: f.Price.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@currencyType",
         value: f.CurrencyType.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@paymentMethod",
         value: f.PaymentMethod);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@transfers",
         value: f.Transfers.ToString() != string.Empty
             ? f.Transfers
             : string.Empty);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@agencyId",
         value: f.AgencyId is not null
             ? f.AgencyId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@transferDuration",
         value: f.TransferDuration is not null
             ? f.TransferDuration.TrimDoubleQuotes()
@@ -276,29 +282,29 @@ foreach (var f in feed.FareRules)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@fareId",
         value: f.FareId.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@routeId",
         value: f.RouteId is not null
             ? f.RouteId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@originId",
         value: f.OriginId is not null
             ? f.OriginId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@destinationId",
         value: f.DestinationId is not null
             ? f.DestinationId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@containsId",
         value: f.ContainsId is not null
             ? f.ContainsId.TrimDoubleQuotes()
@@ -328,23 +334,23 @@ foreach (var f in feed.Frequencies)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@tripId",
         value: f.TripId.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@startTime",
         value: f.StartTime.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@endTime",
         value: f.EndTime.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@headwaySecs",
         value: f.HeadwaySecs.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@exactTimes",
         value: f.ExactTimes is not null
             ? f.ExactTimes.ToString() != string.Empty
@@ -372,15 +378,15 @@ foreach (var l in feed.Levels)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@levelId",
         value: l.Id.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@levelIndex",
         value: l.Index);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@levelName",
         value: l.Name is not null
             ? l.Name.TrimDoubleQuotes()
@@ -424,45 +430,45 @@ foreach (var p in feed.Pathways)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@pathwayId",
         value: p.Id.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@fromStopId",
         value: p.FromStopId.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@toStopId",
         value: p.ToStopId.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@pathwayMode",
         value: p.PathwayMode);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@isBidirectional",
         value: p.IsBidirectional);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@length",
         value: p.Length is not null
             ? p.Length
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@traversalTime",
         value: p.TraversalTime is not null
             ? p.TraversalTime
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stairCount",
         value: p.StairCount is not null
             ? p.StairCount
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@maxSlope",
         value: p.MaxSlope is not null
             ? p.MaxSlope.ToString() != string.Empty
@@ -470,19 +476,19 @@ foreach (var p in feed.Pathways)
                 : string.Empty
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@minWidth",
         value: p.MinWidth is not null
             ? p.MinWidth
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@signpostedAs",
         value: p.SignpostedAs is not null
             ? p.SignpostedAs.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@reversedSignpostedAs",
         value: p.ReversedSignpostedAs is not null
             ? p.ReversedSignpostedAs.TrimDoubleQuotes()
@@ -520,45 +526,45 @@ foreach (var r in feed.Routes)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@routeId",
         value: r.Id.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@agencyId",
         value: r.AgencyId is not null
             ? r.AgencyId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@routeShortName",
         value: r.ShortName is not null
             ? r.ShortName.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@routeLongName",
         value: r.LongName is not null
             ? r.LongName.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@routeDesc",
         value: r.Description is not null
             ? r.Description.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@routeType",
         value: r.Type);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@routeUrl",
         value: r.Url is not null
             ? r.Url.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@routeColor",
         value: r.Color is not null
             ? r.Color.ToString() != string.Empty
@@ -566,7 +572,7 @@ foreach (var r in feed.Routes)
                 : string.Empty
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@routeTextColor",
         value: r.TextColor is not null
             ? r.TextColor.ToString() != string.Empty
@@ -598,23 +604,23 @@ foreach (var s in feed.Shapes)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@shapeId",
         value: s.Id.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@shapePtLat",
         value: s.Latitude);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@shapePtLon",
         value: s.Longitude);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@shapePtSequence",
         value: s.Sequence);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@shapeDistanceTravelled",
         value: s.DistanceTravelled is not null
             ? s.DistanceTravelled
@@ -662,49 +668,49 @@ foreach (var s in feed.Stops)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopId",
         value: s.Id.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopCode",
         value: s.Code is not null
             ? s.Code.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopName",
         value: s.Name is not null
             ? s.Name.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopDesc",
         value: s.Description is not null
             ? s.Description.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopLat",
         value: s.Latitude);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopLon",
         value: s.Longitude);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@zoneId",
         value: s.Zone is not null
             ? s.Zone.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopUrl",
         value: s.Url is not null
             ? s.Url.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@locationType",
         value: s.LocationType is not null
             ? s.LocationType.ToString() != string.Empty
@@ -712,31 +718,31 @@ foreach (var s in feed.Stops)
                 : string.Empty
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@parentStation",
         value: s.ParentStation is not null
             ? s.ParentStation.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopTimezone",
         value: s.Timezone is not null
             ? s.Timezone.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@wheelchairBoarding",
         value: s.WheelchairBoarding is not null
             ? s.WheelchairBoarding.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@levelId",
         value: s.LevelId is not null
             ? s.LevelId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@platformCode",
         value: s.PlatformCode is not null
             ? s.PlatformCode.TrimDoubleQuotes()
@@ -776,39 +782,39 @@ foreach (var s in feed.StopTimes)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@tripId",
         value: s.TripId.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@arrivalTime",
         value: s.ArrivalTime is not null
             ? s.ArrivalTime.ToString()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@departureTime",
         value: s.DepartureTime is not null
             ? s.DepartureTime.ToString()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopId",
         value: s.StopId is not null
             ? s.StopId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopSequence",
         value: s.StopSequence);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@stopHeadsign",
         value: s.StopHeadsign is not null
             ? s.StopHeadsign.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@pickupType",
         value: s.PickupType is not null
             ? s.PickupType.ToString() != string.Empty
@@ -816,7 +822,7 @@ foreach (var s in feed.StopTimes)
                 : string.Empty
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@dropOffType",
         value: s.DropOffType is not null
             ? s.DropOffType.ToString() != string.Empty
@@ -824,13 +830,13 @@ foreach (var s in feed.StopTimes)
                 : string.Empty
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@shapeDistTravelled",
         value: s.ShapeDistTravelled is not null
             ? s.ShapeDistTravelled
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@timepoint",
         value: s.TimepointType.ToString() != string.Empty
             ? s.TimepointType
@@ -858,25 +864,25 @@ foreach (var t in feed.Transfers)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@fromStopId",
         value: t.FromStopId is not null
             ? t.FromStopId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@toStopId",
         value: t.ToStopId is not null
             ? t.ToStopId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@transferType",
         value: t.TransferType.ToString() != string.Empty
             ? t.TransferType
             : string.Empty);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@minTransferTime",
         value: t.MinimumTransferTime is not null
             ? t.MinimumTransferTime
@@ -914,49 +920,49 @@ foreach (var t in feed.Trips)
 {
     command.Parameters.Clear();
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@routeId",
         value: t.RouteId.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@serviceId",
         value: t.ServiceId.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@tripId",
         value: t.Id.TrimDoubleQuotes());
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@tripHeadsign",
         value: t.Headsign is not null
             ? t.Headsign.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@tripShortName",
         value: t.ShortName is not null
             ? t.ShortName.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@directionId",
         value: t.Direction is not null
             ? t.Direction
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@blockId",
         value: t.BlockId is not null
             ? t.BlockId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@shapeId",
         value: t.ShapeId is not null
             ? t.ShapeId.TrimDoubleQuotes()
             : DBNull.Value);
     
-    command.Parameters.AddWithValue(
+    command.AddWithValue(
         parameterName: "@wheelchairAccessible",
         value: t.AccessibilityType is not null
             ? t.AccessibilityType.ToString() != string.Empty
