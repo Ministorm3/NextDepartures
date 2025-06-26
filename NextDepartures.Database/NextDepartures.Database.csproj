@@ -30,7 +30,7 @@
         <None Update="Data\feed.db">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
-        <None Update="Data\feed.zip">
+        <None Update="Data\GTFS.zip">
             <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
         </None>
     </ItemGroup>
