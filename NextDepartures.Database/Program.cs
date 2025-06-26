@@ -8,7 +8,10 @@ using NextDepartures.Database.Extensions;
 
 static void DisplayRowProgress(string label, int row)
 {
-    Console.Write($"\r{label}: row {row}");
+    var text = $"{label}: row {row}";
+    var output = $"\r{text}".PadRight(Console.BufferWidth - 1);
+    Console.Write(output);
+    Console.Out.Flush();
 }
 
 GTFSReader<GTFSFeed> reader = new();
