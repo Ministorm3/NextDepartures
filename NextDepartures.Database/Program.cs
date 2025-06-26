@@ -6,6 +6,14 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Data.Sqlite;
 using NextDepartures.Database.Extensions;
 
+static void DisplayRowProgress(string label, int row)
+{
+    var text = $"{label}: row {row}";
+    var output = $"\r{text}".PadRight(Console.BufferWidth - 1);
+    Console.Write(output);
+    Console.Out.Flush();
+}
+
 GTFSReader<GTFSFeed> reader = new();
 var feed = reader.Read(path: "Data/feed.zip");
 
@@ -54,8 +62,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var a in feed.Agencies)
     {
+        row++;
+        DisplayRowProgress("Agencies", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -104,6 +115,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -138,8 +150,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var c in feed.Calendars)
     {
+        row++;
+        DisplayRowProgress("Calendars", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -186,6 +201,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -206,8 +222,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var d in feed.CalendarDates)
     {
+        row++;
+        DisplayRowProgress("CalendarDates", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -226,6 +245,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -254,8 +274,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var f in feed.FareAttributes)
     {
+        row++;
+        DisplayRowProgress("FareAttributes", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -296,6 +319,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -320,8 +344,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var f in feed.FareRules)
     {
+        row++;
+        DisplayRowProgress("FareRules", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -356,6 +383,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -380,8 +408,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var f in feed.Frequencies)
     {
+        row++;
+        DisplayRowProgress("Frequencies", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -412,6 +443,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -432,8 +464,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var l in feed.Levels)
     {
+        row++;
+        DisplayRowProgress("Levels", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -454,6 +489,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -492,8 +528,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var p in feed.Pathways)
     {
+        row++;
+        DisplayRowProgress("Pathways", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -564,6 +603,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -596,8 +636,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var r in feed.Routes)
     {
+        row++;
+        DisplayRowProgress("Routes", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -658,6 +701,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -682,8 +726,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var s in feed.Shapes)
     {
+        row++;
+        DisplayRowProgress("Shapes", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -712,6 +759,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -754,8 +802,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var s in feed.Stops)
     {
+        row++;
+        DisplayRowProgress("Stops", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -842,6 +893,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -876,8 +928,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var s in feed.StopTimes)
     {
+        row++;
+        DisplayRowProgress("StopTimes", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -944,6 +999,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -966,8 +1022,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var t in feed.Transfers)
     {
+        row++;
+        DisplayRowProgress("Transfers", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -998,6 +1057,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
@@ -1030,8 +1090,11 @@ using (var transaction = connection.BeginTransaction())
 {
     command.Transaction = transaction;
 
+    var row = 0;
     foreach (var t in feed.Trips)
     {
+        row++;
+        DisplayRowProgress("Trips", row);
         command.Parameters.Clear();
     
     command.AddWithValue(
@@ -1088,6 +1151,7 @@ using (var transaction = connection.BeginTransaction())
     }
 
     transaction.Commit();
+    Console.WriteLine();
 }
 
 command.Transaction = null;
