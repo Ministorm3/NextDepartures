@@ -744,7 +744,7 @@ using (var transaction = connection.BeginTransaction())
     
     command.AddWithValue(
         parameterName: "@shapePtSequence",
-        value: s.Sequence);
+        value: Convert.ToInt32(s.Sequence));
     
     command.AddWithValue(
         parameterName: "@shapeDistanceTravelled",
