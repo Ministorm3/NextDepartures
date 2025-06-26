@@ -9,7 +9,13 @@ using NextDepartures.Database.Extensions;
 GTFSReader<GTFSFeed> reader = new();
 var feed = reader.Read(path: "Data/feed.zip");
 
-var azureSql = Environment.GetEnvironmentVariable("AZURE_SQL_CONNECTION_STRING");
+var azureSql = "Server=tcp:yourserver.database.windows.net,1433;" +
+               "Initial Catalog=NextDepartures;" +
+               "User ID=myuser;" +
+               "Password=mypassword;" +
+               "Encrypt=True;" +
+               "TrustServerCertificate=False;" +
+               "Connection Timeout=30;";
 
 await using DbConnection connection = string.IsNullOrWhiteSpace(azureSql)
     ? new SqliteConnection("Data Source=Data/feed.db;")
