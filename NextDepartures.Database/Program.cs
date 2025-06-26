@@ -50,9 +50,13 @@ command.CommandText = "INSERT INTO GTFS_AGENCY (" +
 
 command.Parameters.Clear();
 
-foreach (var a in feed.Agencies)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var a in feed.Agencies)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@agencyId",
@@ -95,10 +99,14 @@ foreach (var a in feed.Agencies)
         value: a.Email is not null
             ? a.Email.TrimDoubleQuotes()
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_CALENDAR (" +
@@ -126,9 +134,13 @@ command.CommandText = "INSERT INTO GTFS_CALENDAR (" +
 
 command.Parameters.Clear();
 
-foreach (var c in feed.Calendars)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var c in feed.Calendars)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@serviceId",
@@ -169,10 +181,14 @@ foreach (var c in feed.Calendars)
     command.AddWithValue(
         parameterName: "@endDate",
         value: c.EndDate);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_CALENDAR_DATES (" +
@@ -186,9 +202,13 @@ command.CommandText = "INSERT INTO GTFS_CALENDAR_DATES (" +
 
 command.Parameters.Clear();
 
-foreach (var d in feed.CalendarDates)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var d in feed.CalendarDates)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@serviceId",
@@ -201,10 +221,14 @@ foreach (var d in feed.CalendarDates)
     command.AddWithValue(
         parameterName: "@exceptionType",
         value: d.ExceptionType);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_FARE_ATTRIBUTES (" +
@@ -226,9 +250,13 @@ command.CommandText = "INSERT INTO GTFS_FARE_ATTRIBUTES (" +
 
 command.Parameters.Clear();
 
-foreach (var f in feed.FareAttributes)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var f in feed.FareAttributes)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@fareId",
@@ -263,10 +291,14 @@ foreach (var f in feed.FareAttributes)
         value: f.TransferDuration is not null
             ? f.TransferDuration.TrimDoubleQuotes()
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_FARE_RULES (" +
@@ -284,9 +316,13 @@ command.CommandText = "INSERT INTO GTFS_FARE_RULES (" +
 
 command.Parameters.Clear();
 
-foreach (var f in feed.FareRules)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var f in feed.FareRules)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@fareId",
@@ -315,10 +351,14 @@ foreach (var f in feed.FareRules)
         value: f.ContainsId is not null
             ? f.ContainsId.TrimDoubleQuotes()
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_FREQUENCIES (" +
@@ -336,9 +376,13 @@ command.CommandText = "INSERT INTO GTFS_FREQUENCIES (" +
 
 command.Parameters.Clear();
 
-foreach (var f in feed.Frequencies)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var f in feed.Frequencies)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@tripId",
@@ -363,10 +407,14 @@ foreach (var f in feed.Frequencies)
                 ? f.ExactTimes
                 : string.Empty
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_LEVELS (" +
@@ -380,9 +428,13 @@ command.CommandText = "INSERT INTO GTFS_LEVELS (" +
 
 command.Parameters.Clear();
 
-foreach (var l in feed.Levels)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var l in feed.Levels)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@levelId",
@@ -397,10 +449,14 @@ foreach (var l in feed.Levels)
         value: l.Name is not null
             ? l.Name.TrimDoubleQuotes()
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_PATHWAYS (" +
@@ -432,9 +488,13 @@ command.CommandText = "INSERT INTO GTFS_PATHWAYS (" +
 
 command.Parameters.Clear();
 
-foreach (var p in feed.Pathways)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var p in feed.Pathways)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@pathwayId",
@@ -499,10 +559,14 @@ foreach (var p in feed.Pathways)
         value: p.ReversedSignpostedAs is not null
             ? p.ReversedSignpostedAs.TrimDoubleQuotes()
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_ROUTES (" +
@@ -528,9 +592,13 @@ command.CommandText = "INSERT INTO GTFS_ROUTES (" +
 
 command.Parameters.Clear();
 
-foreach (var r in feed.Routes)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var r in feed.Routes)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@routeId",
@@ -585,10 +653,14 @@ foreach (var r in feed.Routes)
                 ? r.TextColor
                 : string.Empty
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_SHAPES (" +
@@ -606,9 +678,13 @@ command.CommandText = "INSERT INTO GTFS_SHAPES (" +
 
 command.Parameters.Clear();
 
-foreach (var s in feed.Shapes)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var s in feed.Shapes)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@shapeId",
@@ -631,10 +707,14 @@ foreach (var s in feed.Shapes)
         value: s.DistanceTravelled is not null
             ? s.DistanceTravelled
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_STOPS (" +
@@ -670,9 +750,13 @@ command.CommandText = "INSERT INTO GTFS_STOPS (" +
 
 command.Parameters.Clear();
 
-foreach (var s in feed.Stops)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var s in feed.Stops)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@stopId",
@@ -753,10 +837,14 @@ foreach (var s in feed.Stops)
         value: s.PlatformCode is not null
             ? s.PlatformCode.TrimDoubleQuotes()
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_STOP_TIMES (" +
@@ -784,9 +872,13 @@ command.CommandText = "INSERT INTO GTFS_STOP_TIMES (" +
 
 command.Parameters.Clear();
 
-foreach (var s in feed.StopTimes)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var s in feed.StopTimes)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@tripId",
@@ -847,10 +939,14 @@ foreach (var s in feed.StopTimes)
         value: s.TimepointType.ToString() != string.Empty
             ? s.TimepointType
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_TRANSFERS (" +
@@ -866,9 +962,13 @@ command.CommandText = "INSERT INTO GTFS_TRANSFERS (" +
 
 command.Parameters.Clear();
 
-foreach (var t in feed.Transfers)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var t in feed.Transfers)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@fromStopId",
@@ -893,10 +993,14 @@ foreach (var t in feed.Transfers)
         value: t.MinimumTransferTime is not null
             ? t.MinimumTransferTime
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "INSERT INTO GTFS_TRIPS (" +
@@ -922,9 +1026,13 @@ command.CommandText = "INSERT INTO GTFS_TRIPS (" +
 
 command.Parameters.Clear();
 
-foreach (var t in feed.Trips)
+using (var transaction = connection.BeginTransaction())
 {
-    command.Parameters.Clear();
+    command.Transaction = transaction;
+
+    foreach (var t in feed.Trips)
+    {
+        command.Parameters.Clear();
     
     command.AddWithValue(
         parameterName: "@routeId",
@@ -975,10 +1083,14 @@ foreach (var t in feed.Trips)
                 ? t.AccessibilityType
                 : string.Empty
             : DBNull.Value);
-    
-    await command.ExecuteNonQueryAsync();
+
+        await command.ExecuteNonQueryAsync();
+    }
+
+    transaction.Commit();
 }
 
+command.Transaction = null;
 command.Parameters.Clear();
 
 command.CommandText = "CREATE INDEX GTFS_STOP_TIMES_INDEX ON GTFS_STOP_TIMES (" +
